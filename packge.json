@@ -1,0 +1,20 @@
+{
+  "name": "ffmpeg-audio",
+  "version": "1.0.0",
+  "description": "Ffmpeg binaries for audio processing",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/david-benes/ffmpeg-audio.git"
+  },
+  "keywords": [
+    "ffmpeg",
+    "audio",
+    "processing",
+    "library"
+  ],
+  "author": "David <david@example.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/david-benes/ffmpeg-audio/issues"
+  }
+}
