@@ -32,6 +32,8 @@ COMMON_CONFIGURE_OPTIONS := \
     --enable-libfdk-aac \
     --enable-nonfree \
     --enable-filter=aresample,silencedetect \
+    --pkg-config-flags="--static" \
+    --extra-ldexeflags="-Bstatic" \
 
 # Default target
 all: linux-build
@@ -99,7 +101,7 @@ macos-build: fetch build-lame build-fdk-aac configure-macos
 	cd $(SRC_DIR) && make
 
 # Configure and build for Linux
-linux-build: configure-linux build-lame build-fdk-aac
+linux-build: fetch build-lame build-fdk-aac configure-linux
 	cd $(SRC_DIR) && make
 
 # Install target
