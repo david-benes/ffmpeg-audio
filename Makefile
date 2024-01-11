@@ -28,7 +28,8 @@ COMMON_CONFIGURE_OPTIONS := \
     --enable-bsf=aac_adtstoasc \
     --enable-libfdk-aac \
     --enable-nonfree \
-    --enable-filter=aresample,silencedetect
+    --enable-filter=aresample,silencedetect \
+    --enable-static
 
 # Default target
 all: linux-build
