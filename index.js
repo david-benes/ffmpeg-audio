@@ -7,18 +7,24 @@ const getBinaryPath = () => {
 
   const binaries = {
     darwin: {
-      arm64: 'bin/darwin/aarch64/ffmpeg'
+      arm64: 'bin/darwin/arm64'
     },
     linux: {
-      x64: 'bin/linux/x64/ffmpeg',
+      x64: 'bin/linux/x64',
     }
   };
-
   if (platform === 'darwin' && arch === 'arm64') {
-    return path.resolve(__dirname, binaries.darwin.arm64);
+    return {
+      ffmpeg: path.resolve(__dirname, `${binaries.darwin.arm64}/ffmpeg`),
+      ffprobe: path.resolve(__dirname, `${binaries.darwin.arm64}/ffprobe`),
+    };
   } else {
-    return path.resolve(__dirname, binaries.linux.x64);
+    return {
+      ffmpeg: path.resolve(__dirname, `${binaries.linux.x64}/ffmpeg`),
+      ffprobe: path.resolve(__dirname, `${binaries.linux.x64}/ffprobe`),
+    };
   }
+
 };
 
 module.exports = getBinaryPath;
