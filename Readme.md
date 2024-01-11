@@ -15,9 +15,12 @@ Install dependencies.
 
 `brew install lame`
 
+### linux
+`sudo apt-get install libmp3lame-dev`
+
 ## Building
 
-`make build` - configure and build binaries on linux
+`make linux-build` - configure and build binaries on linux
 
 `make macos-build` - configure and build binaries on macOS
 
