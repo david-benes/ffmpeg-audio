@@ -14,6 +14,9 @@ MACOS_EXTRA_LDFLAGS := -L/opt/homebrew/lib
 # Target directories for installation
 PREFIX_LINUX := $(CURDIR)/bin/linux/x64
 PREFIX_MAC := $(CURDIR)/bin/darwin/arm64
+LIB_INSTALL_PREFIX := $(CURDIR)/build/libs
+FFMPEG_EXTRA_CFLAGS := -I$(LIB_INSTALL_PREFIX)/include
+FFMPEG_EXTRA_LDFLAGS := -L$(LIB_INSTALL_PREFIX)/lib
 
 # Common configuration commands
 COMMON_CONFIGURE_OPTIONS := \
@@ -29,7 +32,6 @@ COMMON_CONFIGURE_OPTIONS := \
     --enable-libfdk-aac \
     --enable-nonfree \
     --enable-filter=aresample,silencedetect \
-    --enable-static
 
 # Default target
 all: linux-build
@@ -45,26 +47,60 @@ $(FETCH_DIR): $(BUILD_DIR)
 fetch: $(FETCH_DIR)
 	curl -L "https://ffmpeg.org/releases/$(FFMPEG_ARCHIVE)" -o $(FETCH_DIR)/$(FFMPEG_ARCHIVE)
 	tar -xf $(FETCH_DIR)/$(FFMPEG_ARCHIVE) -C $(FETCH_DIR)
+	curl -L "https://github.com/mstorsjo/fdk-aac/archive/refs/tags/v2.0.3.tar.gz" -o $(FETCH_DIR)/fdk-aac-2.0.3.tar.gz
+	tar -xf $(FETCH_DIR)/fdk-aac-2.0.3.tar.gz -C $(FETCH_DIR)
+	curl -L "https://deac-riga.dl.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz" -o $(FETCH_DIR)/lame-3.100.tar.gz
+	tar -xf $(FETCH_DIR)/lame-3.100.tar.gz -C $(FETCH_DIR)
 
-# Configure and build for Linux
-linux-build: configure-linux
-	cd $(SRC_DIR) && make
+# Lib targets
+.PHONY: build-lame build-fdk-aac
 
-configure-linux: fetch
+build-lame-arm64:
+	echo "*** Building mp3lame for macOS ***"
+	cd $(FETCH_DIR) && cd `ls -d lame* | head -n 1` && \
+	make distclean || true && \
+	[ ! -f config.status ] && ./configure --prefix=$(LIB_INSTALL_PREFIX) --enable-nasm --disable-shared --build=arm-linux && \
+	make && make install
+
+# Build mp3lame s automatickou detekcí architektury
+build-lame:
+	echo "*** Building mp3lame ***"
+	cd $(FETCH_DIR) && cd `ls -d lame* | head -n 1` && \
+	make distclean || true && \
+	[ ! -f config.status ] && ./configure --prefix=$(LIB_INSTALL_PREFIX) --enable-nasm --disable-shared && \
+	make && make install
+
+
+# Build fdk-aac
+build-fdk-aac:
+	echo "*** Building fdk-aac ***"
+	cd $(FETCH_DIR) && cd `ls -d fdk-aac* | head -n 1` && \
+	make distclean || true && \
+	autoreconf -fiv && \
+	[ ! -f config.status ] && ./configure --prefix=$(LIB_INSTALL_PREFIX) --disable-shared && \
+	make -j $$jval && make install
+
+configure-linux: build-lame build-fdk-aac
 	echo "linux" > $(CONFIG_FILE)
 	cd $(SRC_DIR) && ./configure \
+	$(COMMON_CONFIGURE_OPTIONS) \
+	--extra-cflags="$(FFMPEG_EXTRA_CFLAGS)" \
+	--extra-ldflags="$(FFMPEG_EXTRA_LDFLAGS)"
+
+configure-macos: build-lame-arm64 build-fdk-aac
+	echo "macos" > $(CONFIG_FILE)
+	cd $(SRC_DIR) && ./configure \
+	--extra-cflags="$(MACOS_EXTRA_CFLAGS) $(FFMPEG_EXTRA_CFLAGS)" \
+	--extra-ldflags="$(MACOS_EXTRA_LDFLAGS) $(FFMPEG_EXTRA_LDFLAGS)" \
 	$(COMMON_CONFIGURE_OPTIONS)
 
 # Configure and build for MacOS with Brew
-macos-build: configure-macos
+macos-build: fetch build-lame build-fdk-aac configure-macos
 	cd $(SRC_DIR) && make
 
-configure-macos: fetch
-	echo "macos" > $(CONFIG_FILE)
-	cd $(SRC_DIR) && ./configure \
-	--extra-cflags="$(MACOS_EXTRA_CFLAGS)" \
-	--extra-ldflags="$(MACOS_EXTRA_LDFLAGS)" \
-	$(COMMON_CONFIGURE_OPTIONS)
+# Configure and build for Linux
+linux-build: configure-linux build-lame build-fdk-aac
+	cd $(SRC_DIR) && make
 
 # Install target
 install:
