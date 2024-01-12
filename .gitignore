@@ -1,1 +1,8 @@
 .build
+
+ffmpeg-static/bin
+ffmpeg-static/build
+ffmpeg-static/dl
+ffmpeg-static/target
+
+

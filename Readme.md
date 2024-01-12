@@ -7,25 +7,13 @@ Size of each binary (ffmpeg, ffprobe) is `~2.5MB`.
 Supported formats are: aac, flac, mp3, mp4, mov, wav
 Supported filters are: aresample, silencedetect
 
-## Preparing
-Install dependencies.
+The build scripts are based on:
+https://github.com/zimbatm/ffmpeg-static
 
-### macOS
-`brew install fdk-aac`
 
-`brew install lame`
+## How to update ffmpeg and ffprobe binaries
+`make build` - configure and build binaries
 
-### linux
-`sudo apt-get install libmp3lame-dev`
+`make install` - copies binaries to `./bin` directory
 
-## Building
-
-`make linux-build` - configure and build binaries on linux
-
-`make macos-build` - configure and build binaries on macOS
-
-## Installing
-`make install` - copy binaries to the right directory in this project
-
-## Cleaning
-`make clean` - remove build directories
+`make clean` - cleanups the build directory
