@@ -145,7 +145,7 @@ if [ "$platform" = "linux" ]; then
     --enable-bsf=aac_adtstoasc \
     --enable-libfdk-aac \
     --enable-nonfree \
-    --enable-filter=aresample,silencedetect
+    --enable-filter=aresample,silencedetect,concat
 
 
 elif [ "$platform" = "darwin" ]; then
@@ -169,7 +169,7 @@ elif [ "$platform" = "darwin" ]; then
     --enable-bsf=aac_adtstoasc \
     --enable-libfdk-aac \
     --enable-nonfree \
-    --enable-filter=aresample,silencedetect
+    --enable-filter=aresample,silencedetect,concat
 fi
 
 PATH="$BIN_DIR:$PATH" make -j $jval
